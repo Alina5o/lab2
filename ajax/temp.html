@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>jQuery AJAX Example</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div class="checks">
+  <div class="container">
+    <div class="header-holder"><h1>ADD GOOD</h1></div>
+    <form>
+      <div>
+        <label for="product">PRODUCT NAME:</label>
+        <input type="text" id="product" name="product">
+      </div>
+      <div>
+        <label for="material">MATERIAL:</label>
+        <input type="text" id="material" name="material">
+      </div>
+      <div>
+        <label for="price">PRICE:</label>
+        <input type="number" id="price" name="price">
+      </div>
+      <div>
+        <label for="proba">PROBA:</label>
+        <input type="number" id="proba" name="proba">
+      </div>
+      <div>
+        <label for="size">SIZE:</label>
+        <input type="number" id="size" name="size">
+      </div>
+      <div>
+        <button type="submit" id="submitButton">TO BUY</button>
+      </div>
+    </form>
+    <div class="header-holder"><h1>ALL GOODS</h1></div>
+    <div id="goodsData"></div>
+    <div>
+      <label for="good">Write name of good to visulize it:</label>
+      <input type="text" id="good" name="good">
+    </div>
+    <div id="oneGood"></div>
+  </div>
+</div>
+
+<script>
+  function getGoodsById(goodsId) {
+    $.ajax({
+      url: `http://localhost:5000/goods/idgoods/${goodsId}`,
+      method: 'GET',
+      success: function(response) {
+        console.log(response);
+        $('#goodsData').text(JSON.stringify(response));
+      },
+      error: function(error) {
+        console.log(error);
+      }
+    });
+  }
+  function getAllGoods() {
+    $.ajax({
+      url: `http://localhost:5000/goods/all`,
+      method: 'GET',
+      success: function(response) {
+        const dataContainer = document.getElementById('goodsData');
+        dataContainer.classList.add("object-container")
+        response.forEach(item => {
+          const itemElement = document.createElement('div');
+          itemElement.classList.add("object-card")
+          const itemName = document.createElement('p');
+          itemName.textContent = "Name: " + item.name;
+          const itemMaterial = document.createElement('p');
+          itemMaterial.textContent = "Material: " + item.material;
+          const itemPrice = document.createElement('p');
+          itemPrice.textContent = "Price: " + item.price;
+          const itemProba = document.createElement('p');
+          itemProba.textContent = "Proba: " + item.proba;
+          itemElement.appendChild(itemName);
+          itemElement.appendChild(itemMaterial);
+          itemElement.appendChild(itemPrice);
+          itemElement.appendChild(itemProba);
+          dataContainer.appendChild(itemElement);
+        });
+      },
+      error: function(error) {
+        console.log(error);
+      }
+    });
+  }
+  getAllGoods();
+  document.getElementById("good").addEventListener("change", function(event) {
+    var name = document.getElementById('good').value;
+    $.ajax({
+      url: `http://localhost:5000/goods/namegoods/${name}`,
+      method: 'GET',
+      success: function(response) {
+        const dataContainer = document.getElementById('oneGood');
+        dataContainer.innerHTML = ""
+        const itemElement = document.createElement('div');
+        itemElement.classList.add("object-card")
+        const itemName = document.createElement('p');
+        itemName.textContent = "Name: " + response.name;
+        const itemMaterial = document.createElement('p');
+        itemMaterial.textContent = "Material: " + response.material;
+        const itemPrice = document.createElement('p');
+        itemPrice.textContent = "Price: " + response.price;
+        const itemProba = document.createElement('p');
+        itemProba.textContent = "Proba: " + response.proba;
+        itemElement.appendChild(itemName);
+        itemElement.appendChild(itemMaterial);
+        itemElement.appendChild(itemPrice);
+        itemElement.appendChild(itemProba);
+        dataContainer.appendChild(itemElement);
+      },
+      error: function(error) {
+        const dataContainer = document.getElementById('oneGood');
+        dataContainer.innerHTML = ""
+        console.log(error)
+        dataContainer.textContent = error.responseJSON.Error
+      }
+    });
+
+  })
+  document.getElementById('submitButton').addEventListener('click', function() {
+    var name = document.getElementById('product').value;
+    var material = document.getElementById('material').value;
+    var price = document.getElementById('price').value;
+    var proba = document.getElementById('proba').value;
+    var size = document.getElementById('size').value;
+
+    $.ajax({
+      contentType: "application/json;charset=utf-8",
+      url: 'http://localhost:5000/goods',
+      type: 'POST',
+      dataType: "json",
+      data: JSON.stringify({
+        name: name,
+        material: material,
+        price: price,
+        proba: proba,
+        size: size
+      }),
+      traditional: true,
+      success: function(response) {
+        console.log(response);
+      },
+      error: function(error) {
+        console.log(error);
+      }
+    });
+  });
+</script>
+</body>
+</html>
